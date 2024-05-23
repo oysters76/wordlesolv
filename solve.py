@@ -12,8 +12,6 @@ with open("words.txt", "r") as wordfile:
 # Interface 
 import pygame
 
-
-
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -24,6 +22,9 @@ TEXT_FONT = pygame.font.Font(None, 40)
 
 from algorithm import * 
 from structures import * 
+
+rule_ind_combinations = get_all_rule_ind_combinations() 
+
 
 board = WordleBoard(100, 100, (150,150,150), 36)  
 wordPool = WordProbPool(600, 50, TEXT_FONT, 30)
@@ -45,7 +46,7 @@ while running:
                 can_move = board.move_to_next() 
                 if (can_move):
                     rules = board.get_info()
-                    updateWordPool(wordPool, rules, all_words)
+                    updateWordPool(wordPool, rules, all_words, rule_ind_combinations)
                     wordPool.print_pool()
         elif event.type == pygame.MOUSEBUTTONDOWN: 
             x, y = pygame.mouse.get_pos()

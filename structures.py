@@ -1,4 +1,5 @@
 import pygame 
+import math
 
 class FilterRule(object):
     
@@ -187,17 +188,20 @@ class WordProb(object):
         self.font = font 
     
     def render(self, x, y, screen):
-        text_surface = self.font.render(str(self.word).upper() + " (" + str(self.prob) + "%)", True, (0,0,0)) 
+        n = round(self.prob, 2)
+        text_surface = self.font.render(str(self.word).upper() + " (" + str(n) + "%)", True, (0,0,0)) 
         screen.blit(text_surface, (x, y))
 
 class WordProbPool(object):
+    TOP_LIMIT = 20 
     def __init__(self, ix, iy, font, gap):
         self.probpool = [] 
         self.ix = ix 
         self.iy = iy 
         self.font = font 
         self.gap = gap
-        self.remainingWords = [] 
+        self.remainingWords = []
+        self.probability = None 
     
     def clear(self):
         self.probpool = [] 
@@ -211,12 +215,38 @@ class WordProbPool(object):
     def reset(self):
         self.probpool = [] 
     
+    def preprocess_list(self):
+        self.probpool = sorted(self.probpool, key=lambda p: p.prob, reverse=True)
+
     def render(self, screen):
         x = self.ix 
         y = self.iy 
+
+        self.preprocess_list()
+        n = 0
         for w in self.probpool:
+            if (n > WordProbPool.TOP_LIMIT):
+                break
             w.render(x,y,screen) 
             y += self.gap
+            n += 1
+    
+    def get_information(self, poolSize):
+        p = self.get_probability(poolSize) 
+        if p == 0:
+            return 0
+        information_bits = p*(math.log((1/p),2))  
+        return information_bits 
+    
+    def get_probability(self, poolSize):
+        if self.probability != None:
+            return self.probability 
+        if poolSize == 0:
+            self.probability = 0 
+            return 0 
+        n = len(self.remainingWords) 
+        self.probability = n/poolSize
+        return self.probability
     
     def print_pool(self):
         print("-----------printing pool--------")
