@@ -44,8 +44,9 @@ while running:
             if pygame.K_KP_ENTER:
                 can_move = board.move_to_next() 
                 if (can_move):
-                    info = board.get_info()
-                    updateWordPool(wordPool, info, all_words) 
+                    rules = board.get_info()
+                    updateWordPool(wordPool, rules, all_words)
+                    wordPool.print_pool()
         elif event.type == pygame.MOUSEBUTTONDOWN: 
             x, y = pygame.mouse.get_pos()
             board.board_click(x,y) 

@@ -1,5 +1,36 @@
 import pygame 
 
+class FilterRule(object):
+    
+    RULE_LETTER_SHOULD_BE_HERE     = 1 
+    RULE_LETTER_SHOULD_NOT_BE_HERE = 2
+    RULE_LETTER_CAN_BE_THERE       = 3 
+
+    def __init__(self, letter, position, rule): 
+        self.letter = letter 
+        self.position = position 
+        self.rule = rule 
+
+    def checkLetterShouldBeThere(self, l):
+        return self.letter == l; 
+
+    def checkLetterShouldNotBeThere(self, l, word):
+        return self.letter not in word;  
+
+    def checkLetterCanBeThere(self, l, word):
+        return self.letter in word;   
+
+    def check_rule(self, letter, position, word):
+        if (self.position != position): return True 
+
+        if self.rule == FilterRule.RULE_LETTER_SHOULD_BE_HERE:
+            return self.checkLetterShouldBeThere(letter) 
+        if self.rule == FilterRule.RULE_LETTER_SHOULD_NOT_BE_HERE: 
+            return self.checkLetterShouldNotBeThere(letter, word) 
+        if self.rule == FilterRule.RULE_LETTER_CAN_BE_THERE:
+            return self.checkLetterCanBeThere(letter, word) 
+        return False  
+
 class WordleBoard(object):
     TRIES = 6 
     WORD_SIZE = 5 
@@ -9,7 +40,11 @@ class WordleBoard(object):
     CLICK_STATE_NOT_IN       = 1 #grey out
     CLICK_STATE_IN_WRONG_POS = 2 #yellow
     CLICK_STATE_IN_CORRE_POS = 3 #green 
-    ALL_CLICK_STATES         = 4 
+    ALL_CLICK_STATES         = 4
+
+    FILTER_RULE_MAP = [FilterRule.RULE_LETTER_SHOULD_NOT_BE_HERE, 
+                        FilterRule.RULE_LETTER_CAN_BE_THERE, 
+                        FilterRule.RULE_LETTER_SHOULD_BE_HERE] 
 
     def __init__(self, x, y, rect_color, ft_size):
         self.state = self.init_state() 
@@ -129,7 +164,8 @@ class WordleBoard(object):
 
     def __add_to_results(self):
         for i, cell in enumerate(self.state[self.yloc]):
-            self.results.append([cell.value, i, cell.click]) 
+            self.results.append(FilterRule(str(cell.value).lower(), i, 
+                                            WordleBoard.FILTER_RULE_MAP[cell.click-1])) 
 
     def move_to_next(self):
         if (self.yloc >= WordleBoard.TRIES):
@@ -151,7 +187,7 @@ class WordProb(object):
         self.font = font 
     
     def render(self, x, y, screen):
-        text_surface = self.font.render(self.word + " (" + str(self.prob) + "%)", True, (0,0,0)) 
+        text_surface = self.font.render(str(self.word).upper() + " (" + str(self.prob) + "%)", True, (0,0,0)) 
         screen.blit(text_surface, (x, y))
 
 class WordProbPool(object):
@@ -160,10 +196,17 @@ class WordProbPool(object):
         self.ix = ix 
         self.iy = iy 
         self.font = font 
-        self.gap = gap 
+        self.gap = gap
+        self.remainingWords = [] 
     
+    def clear(self):
+        self.probpool = [] 
+        self.remainingWords = [] 
+
     def add(self, word, prob):
-        self.probpool.append(WordProb(word, prob, self.font)) 
+        w = str(word).lower()
+        self.remainingWords.append(w)
+        self.probpool.append(WordProb(w, prob, self.font)) 
     
     def reset(self):
         self.probpool = [] 
@@ -173,4 +216,11 @@ class WordProbPool(object):
         y = self.iy 
         for w in self.probpool:
             w.render(x,y,screen) 
-            y += self.gap 
+            y += self.gap
+    
+    def print_pool(self):
+        print("-----------printing pool--------")
+        for p in self.probpool:
+            print(p.word)
+
+   
