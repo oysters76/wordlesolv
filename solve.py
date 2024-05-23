@@ -1,13 +1,17 @@
 
+'''
+ Wordle Solver using information theory. 
+ Author: Chirath Nissanka 
+'''
+
+SOLVER_TITLE = "Wordle Solver" 
+SOLVER_VERSION = "1.0"
 
 # Load all plausible words 
 all_words = [] 
 with open("words.txt", "r") as wordfile:
     for line in wordfile:
         all_words.append(line.replace('\n', ''))
-
-
-        
 
 # Interface 
 import pygame
@@ -19,6 +23,8 @@ clock = pygame.time.Clock()
 running = True
 pygame.key.set_repeat()
 TEXT_FONT = pygame.font.Font(None, 40)
+
+pygame.display.set_caption(SOLVER_TITLE + " " + SOLVER_VERSION)
 
 from algorithm import * 
 from structures import *
