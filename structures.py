@@ -253,4 +253,35 @@ class WordProbPool(object):
         for p in self.probpool:
             print(p.word)
 
-   
+
+class ResetButton(object):
+    BORDER_RADIUS = 5 
+    def __init__(self, x, y, width, height, font,action, text="RESET", bgcolor=(255,0,0),
+                 fgcolor=(0,255,0), borderRadius=BORDER_RADIUS): 
+        self.x = x 
+        self.y = y 
+        self.font = font 
+        self.text = text 
+        self.bgcolor = bgcolor 
+        self.fgcolor = fgcolor 
+        self.width = width 
+        self.height = height
+        self.borderRadius = borderRadius
+        self.action = action
+
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def render(self, screen):
+        text_surface = self.font.render(self.text, True, self.fgcolor)
+        text_x = self.rect.x + (self.rect.width - text_surface.get_width()) // 2
+        text_y = self.rect.y + (self.rect.height - text_surface.get_height()) // 2
+        
+        
+        pygame.draw.rect(screen, self.bgcolor, self.rect, 0,
+                         border_radius=ResetButton.BORDER_RADIUS)
+        
+        screen.blit(text_surface, (text_x, text_y))
+    
+    def on_click_event(self, x, y):
+        if self.rect.collidepoint(x,y):
+            self.action()
