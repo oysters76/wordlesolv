@@ -1,2 +1,6 @@
 __pycache__
 .venv
+*.out
+a.out 
+algo
+.vscode
