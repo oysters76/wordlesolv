@@ -2,13 +2,15 @@
 #include <stdbool.h> 
 
 #define N 5 
+#define MAX_WORD_COUNT 14000 
+#define MAX_RULES_COUNT 10 
 
 const int ALL_COMB_COUNT = 3*3*3*3*3; 
 
-const int RULE_NO    = 0; 
-const int RULE_YES   = 1; 
-const int RULE_MAYBE = 2; 
-const int RULE_COUNT = 3; //number of rules possible 
+#define RULE_NO    0 
+#define RULE_YES   1 
+#define RULE_MAYBE 2 
+#define RULE_COUNT 3 //number of rules possible 
 
 typedef struct Combination{
     int comb[N];
@@ -24,19 +26,21 @@ typedef struct Rule{
     Combination combi; 
 } Rule; 
 
+typedef struct WordPool{
+    Word words[MAX_WORD_COUNT]; 
+    int count; 
+} WordPool; 
+
+typedef struct RulePool{
+    Rule rules[MAX_RULES_COUNT]; 
+    int count;
+} RulePool;
+
 bool is_char_in_word(Word * w, char c){
     for (int i = 0; i < N; i++){
         if (w->word[i] == c) return true; 
     }
     return false; 
-}
-
-bool does_word_match_rule(Word * w, Rule * r){
- bool does_match = true; 
- for (int i = 0; i < N; i++){
-    if (!does_char_match_rule(w, r, i)) return false;  
- }
- return true;
 }
 
 bool does_char_match_rule(Word * w, Rule * r, int position){
@@ -54,6 +58,13 @@ bool does_char_match_rule(Word * w, Rule * r, int position){
         }
     }
     return false; 
+}
+
+bool does_word_match_rule(Word * w, Rule * r){
+ for (int i = 0; i < N; i++){
+    if (!does_char_match_rule(w, r, i)) return false;  
+ }
+ return true;
 }
 
 
@@ -90,8 +101,29 @@ void gen_all_combinations(Combination * combinations){
     }
 }
 
+void filter(WordPool * all_words, WordPool * filtered_words, RulePool * rulePool){
+    for (int i = 0; i < all_words->count; i++){
+        Word w = all_words->words[i]; 
+        bool can_add = true; 
+
+        for (int j = 0; j < N; j++){
+            for (int r = 0; r < rulePool->count; r++){
+                Rule rule = rulePool->rules[r];  
+                if (!(does_word_match_rule(&w, &rule))){
+                    can_add = false; 
+                    break;
+                }
+            }
+            if (!can_add){
+                break; 
+            }
+        }
+        if (can_add){
+            filtered_words->words[filtered_words->count++] = w; 
+        }
+    }
+}
+
 int main(void){
-   Combination combinations[ALL_COMB_COUNT];
-   gen_all_combinations(combinations); 
-   printf("helloworld!\n");
+    return 0; 
 }
